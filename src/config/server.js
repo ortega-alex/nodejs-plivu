@@ -6,7 +6,7 @@ const cors = require("cors");
 
 module.exports = app => {
     //setings 
-    app.set('port' , process.env.PORT || 3000);
+    app.set('port' , process.env.PORT || 4000);
 
     //midlewares
     app.use(morgan('dev'));

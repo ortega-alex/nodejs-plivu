@@ -12,4 +12,3 @@ message.send = async (number, destinatario, msj) => {
 };
 
 module.exports = message;
-

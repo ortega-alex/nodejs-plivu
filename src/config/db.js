@@ -4,10 +4,10 @@ const { database } = require('./keys');
 const pool = mysql.createPool(database);
 
 pool.getConnection((err, connection) => {
-    
+
     if (err) {
-        console.log("err" , err.toString());
-    } 
+        console.log("err", err.toString());
+    }
 
     if (connection) connection.release();
     console.log('DB is Connected');
