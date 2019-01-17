@@ -1,24 +1,21 @@
-module.exports = function (io) {
+const push = require('./push');
+const pool = require('./db');
+
+module.exports = function (io , app) {
   io.on('connection', (socket) => {
-
-    socket.on('disconnect', function () {
-      io.emit('users-changed', { user: socket.nickname, event: 'left' });
-    });
-
-    socket.on('set-nickname', (nickname) => {
-      socket.nickname = nickname;
-      console.log("entro al socket" , nickname)
-      io.emit('users-changed', { user: nickname, event: 'joined' });
-    });
-
-    socket.on('add-message', (message) => {
-      var day = new Date();
-      io.emit('message', { text: message.text, from: socket.nickname, created: day });
-    });
-
-    socket.on('add-web-message', (message) => {
-      var day = new Date();
-      io.emit('message', { text: message, from: socket.nickname, created: day });
+    socket.on('set-numero', (numero) => {
+      socket.numero = numero;
+      console.log("new" , numero )
+      io.emit('numero-changed', { event: numero });
     });
   });
+
+  app.get("/api/new/:numero" , async (req , res) => {
+      const { numero } = req.params;
+      
+      push.notification();
+      
+      io.emit('numero-changed', { event: numero });   
+      res.status(200).json({ message:  "ok" , numero : numero })
+  })
 }
