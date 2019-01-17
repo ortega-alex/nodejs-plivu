@@ -3,11 +3,11 @@ const morgan = require('morgan');
 const express = require('express');
 const routes = require('../routers');
 const cors = require("cors");
-const { server_port } = require('./keys');
+
 
 module.exports = app => {
     //setings 
-    app.set('port', process.env.PORT || server_port.port);
+    app.set('port', process.env.PORT || 89);
 
     //midlewares
     app.use(morgan('dev'));
