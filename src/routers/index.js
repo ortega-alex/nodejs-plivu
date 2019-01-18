@@ -4,12 +4,14 @@ const twilio = require("../controllers/twilio");
 
 module.exports = app => {
 
-    router.get('/api/historico/:de/:hasta', twilio.historico);
-    router.get('/api/noleidos', twilio.noLeidos);
+    router.get('/api/numeros' , twilio.getPlivo_numeros);
+    router.get('/api/numeros/:search', twilio.getNumero);
     router.get('/api/chat/:numero', twilio.chatxnumero);
+    router.post('/api/numeros', twilio.getNumeros);
+    router.get('/api/noleidos', twilio.noLeidos);
     router.put('/api/leido', twilio.editLeido);
     router.post('/api/chat', twilio.editChat);
-    router.post('/api/token' , twilio.setToken);
+    router.post('/api/token', twilio.setToken);
 
     app.use(router);
 };

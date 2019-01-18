@@ -9,8 +9,10 @@ pool.getConnection((err, connection) => {
         console.log("err", err.toString());
     }
 
-    if (connection) connection.release();
-    console.log('DB is Connected');
+    if (connection) {
+        connection.release();
+        console.log('DB is Connected');
+    }
     return
 });
 
