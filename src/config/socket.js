@@ -2,7 +2,7 @@ const push = require('./push');
 const pool = require('./db');
 
 module.exports = function (io, app) {
-  
+
   io.on('connection', (socket) => {
     socket.on('set-numero', (numero) => {
       socket.numero = numero;
