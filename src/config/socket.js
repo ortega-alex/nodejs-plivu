@@ -10,10 +10,10 @@ module.exports = function (io, app) {
     });
   });
 
-  app.get("/api/new/:numero", async (req, res) => {
-    const { numero } = req.params;
+  app.get("/api/new/:numero/:text", async (req, res) => {
+    const { numero , text  } = req.params;
 
-    push.notification();
+    push.notification( numero , text );
 
     io.emit('numero-changed', { event: numero });
     res.status(200).json({ message: "ok", numero: numero })

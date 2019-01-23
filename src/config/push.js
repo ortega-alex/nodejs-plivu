@@ -3,20 +3,20 @@ const { push_notification } = require('./keys');
 const fcm = new FCM(push_notification.services);
 const push = {};
 
-push.notification = () => {
+push.notification = (numero , text) => {
 
     var message = {
         to: push_notification.token,
         //collapse_key: 'your_collapse_key',
 
         notification: {
-            title: 'notification',
-            body: 'demo de notificacion'
+            title: numero,
+            body: text
         },
 
         data: {
-            message: 'new response',
-            title: 'twilio'
+            message: text,
+            title: numero
         }
     };
 
