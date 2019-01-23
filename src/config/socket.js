@@ -1,5 +1,4 @@
 const push = require('./push');
-const pool = require('./db');
 
 module.exports = function (io, app) {
 

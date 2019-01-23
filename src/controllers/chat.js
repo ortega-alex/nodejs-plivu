@@ -1,5 +1,6 @@
 const ctrl = {};
 const pool = require("../config/db");
+const plivo = require("../config/plivo");
 
 ctrl.chatxnumero = async (req, res) => {
     const { numero } = req.params;
@@ -12,7 +13,7 @@ ctrl.chatxnumero = async (req, res) => {
 
 ctrl.editChat = async (req, res) => {
     const { numero_salida, numero, texto } = req.body;
-    //const mjs = await plivo.send(numero_salida, "+50251002326" , texto);
+    await plivo.send(numero_salida, numero, texto);
     await pool.query(`UPDATE twilio_numero
                       SET    ultimo_tipo = 'E'    
                       WHERE  numero = ?` , [numero]);

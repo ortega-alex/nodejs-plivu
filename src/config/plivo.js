@@ -4,11 +4,13 @@ let client = new plivo.Client(client_plivo.id, client_plivo.token);
 let message = {};
 
 message.send = async (number, destinatario, msj) => {
-    return await client.messages.create(
+    await client.messages.create(
         number,
         destinatario,
         msj
-    );
+    ).then(function(message_created) {
+        console.log(message_created)
+    });
 };
 
 module.exports = message;
