@@ -24,7 +24,7 @@ ctrl.getNumeros = async (req, res) => {
                         DATE_FORMAT(twilio_numero.add_fecha, '%Y-%m%-%d %l:%i:%s') add_fecha
                     FROM   twilio_numero                     
                     WHERE  twilio_numero.no_deseado = 'N' AND twilio_numero.favorito = ?
-                    ORDER BY twilio_numero.ultimo_leido ASC,  twilio_numero.ultimo_tipo DESC , twilio_numero.ultimo_add_fecha DESC
+                    ORDER BY  twilio_numero.ultimo_add_fecha DESC , twilio_numero.ultimo_leido ASC,  twilio_numero.ultimo_tipo DESC
                     LIMIT ${inicio} , ${fin}`;
     if (favorito) {
         favoritos = await pool.query(query, ['Y']);
