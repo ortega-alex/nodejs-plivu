@@ -4,22 +4,37 @@ const plivo = require("../config/plivo");
 
 ctrl.chatxnumero = async (req, res) => {
     const { numero } = req.params;
-    const chats = await pool.query(`SELECT id_twilio, texto, tipo, numero , DATE_FORMAT(DATE_SUB(add_fecha, INTERVAL 6 HOUR), '%l:%i %p %Y-%m%-%d') add_fecha, leido
-                                    FROM   twilio   
-                                    WHERE  numero = ?
-                                    ORDER  BY  id_twilio ASC ` , [numero]);
-    res.status(200).json(chats);
+    const strQuery = `SELECT id_twilio, texto, tipo, numero , DATE_FORMAT(DATE_SUB(add_fecha, INTERVAL 6 HOUR), '%l:%i %p %Y-%m%-%d') add_fecha, leido
+                    FROM   twilio   
+                    WHERE  numero = ?
+                    ORDER  BY  id_twilio ASC `;
+    await pool.query(strQuery, [numero], (err, chats) => {
+        if (err) return res.status(500).json({ message: err });
+        res.status(200).json(chats);
+    });
 };
 
 ctrl.editChat = async (req, res) => {
     const { numero_salida, numero, texto } = req.body;
-    await plivo.send(numero_salida, numero, texto);
-    await pool.query(`UPDATE twilio_numero
-                      SET    ultimo_tipo = 'E'    
-                      WHERE  numero = ?` , [numero]);
-    await pool.query(`INSERT INTO twilio(numero, texto, tipo)
-                      VALUES( ? , ? , 'E')` , [numero, texto]);
-    res.status(200).json({ message: "updating" });
+    if ( !numero_salida || !numero || !texto ) return res.status(404).json({message :  "information is missing"})
+    const respuesta = { message : null , err : false };
+    //await plivo.send(numero_salida, numero, texto);
+    var strQuery = `UPDATE twilio_numero
+                        SET    ultimo_tipo = 'E'    
+                        WHERE  numero = ?`;
+    await pool.query(strQuery, [numero]).catch((err) => {
+        respuesta.message = err;
+        respuesta.err = true;
+    });
+
+    strQuery = `INSERT INTO twilio(numero, texto, tipo)
+                VALUES( ? , ? , 'E')`;
+    await pool.query(strQuery, [numero, texto]).catch((err) => {
+        respuesta.message = err;
+        respuesta.err = true;
+    });
+    if (respuesta.err) return res.status(500).json({ message : respuesta.message });
+    res.status(200).json({message : "updating successfully"});
 };
 
 module.exports = ctrl;

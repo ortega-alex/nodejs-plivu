@@ -1,18 +1,19 @@
 const ctrl = {}
 const pool = require("../config/db");
-//const plivo = require("../config/plivo");
 
 ctrl.getPlivo_numeros = async (req, res) => {
-    const numeros = await pool.query(`SELECT a.nombre , a.numero , a.predeterminado 
-                                      FROM plivo_numero as a`);
-    res.status(200).json(numeros);
-}
+    const strQuery = `SELECT a.nombre , a.numero , a.predeterminado 
+                        FROM plivo_numero as a`;
+    await pool.query(strQuery, (err, numeros) => {
+        if (err) return res.status(500).json({ message: err });
+        res.status(200).json(numeros);
+    });
+};
 
 ctrl.getNumeros = async (req, res) => {
     const { inicio, fin, favorito, otro } = req.body;
-    var favoritos = [];
-    var otros = [];
-    const query = `SELECT twilio_numero.id_numero, 
+    const respuesta = { favoritos: [], otros: [], message: null , err : false};
+    const strQuery = `SELECT twilio_numero.id_numero, 
                         twilio_numero.numero, 
                         twilio_numero.nombre, 
                         twilio_numero.favorito, 
@@ -27,18 +28,29 @@ ctrl.getNumeros = async (req, res) => {
                     ORDER BY  twilio_numero.ultimo_add_fecha DESC , twilio_numero.ultimo_leido ASC,  twilio_numero.ultimo_tipo DESC
                     LIMIT ${inicio} , ${fin}`;
     if (favorito) {
-        favoritos = await pool.query(query, ['Y']);
+        await pool.query(strQuery, ['Y']).then((favoritos) => {
+            respuesta.favoritos = favoritos;
+        }).catch((err) => {
+            respuesta.err = true;
+            respuesta.message = err;
+        });
     }
     if (otro) {
-        otros = await pool.query(query, ['N']);
+        await pool.query(strQuery, ['N']).then((otros) => {
+            respuesta.otros = otros;
+        }).catch((err) => {
+            respuesta.err = true;
+            respuesta.message = err;
+        });
     }
-    res.status(200).json({ favoritos, otros });
+    if (respuesta.err) return res.status(500).json({ message: respuesta.message });
+    res.status(200).json(respuesta);
 };
 
 ctrl.getNumero = async (req, res) => {
     const { search } = req.params;
     if (!search) return res.status(403).json({ err: "information is missing" });
-    const query = `SELECT a.id_numero, 
+    const strQuery = `SELECT a.id_numero, 
                         a.numero, 
                         a.nombre, 
                         a.favorito, 
@@ -54,17 +66,22 @@ ctrl.getNumero = async (req, res) => {
                     AND    ( b.numero LIKE '%${search}%' OR a.nombre LIKE '%${search}%' OR b.texto LIKE '%${search}%' )
                     GROUP BY id_numero`;
 
-    const numeros = await pool.query(query);
-    res.status(200).json(numeros);
+    await pool.query(strQuery, (err, numeros) => {
+        if (err) return res.status(500).json({ message: err });
+        res.status(200).json(numeros);
+    });
 }
 
 ctrl.editLeido = async (req, res) => {
     const { numero } = req.body;
     if (!numero) return res.status(404).json({ err: "information is missing" });
-    await pool.query(`UPDATE twilio_numero
-                      SET    ultimo_leido = 'Y'    
-                      WHERE  numero = ?` , [numero]);
-    res.status(200).json({ message: "updating successfully" });
+    const strQuery = `UPDATE twilio_numero
+                        SET    ultimo_leido = 'Y'    
+                        WHERE  numero = ?`;
+    await pool.query(strQuery, [numero], (err) => {
+        if (err) return res.status(500).json({ message: err });
+        res.status(200).json({ message: "updating successfully" });
+    });
 };
 
 ctrl.setToken = async (req, res) => {
@@ -76,30 +93,37 @@ ctrl.setToken = async (req, res) => {
 ctrl.editFavorito = async (req, res) => {
     const { numero } = req.body;
     if (!numero) return res.status(404).json({ err: "information is missing" });
-    const query = `UPDATE twilio_numero 
-                   SET favorito = 'Y'
-                   WHERE  numero = ?`;
-    await pool.query(query, [numero]);
-    res.status(200).json({ message: "updating successfully" });
+    const strQuery = `UPDATE twilio_numero 
+                        SET favorito = 'Y'
+                        WHERE  numero = ?`;
+    await pool.query(strQuery, [numero], (err) => {
+        if (err) return res.status(500).json({ message: err });
+        res.status(200).json({ message: "updating successfully" });
+    });
 };
 
 ctrl.editDNC = async (req, res) => {
     const { numero } = req.body;
     if (!numero) return res.status(404).json({ err: "information is missing" });
-    const query = `UPDATE twilio_numero 
+    const strQuery = `UPDATE twilio_numero 
                    SET no_deseado = 'Y'
                    WHERE  numero = ?`;
-    await pool.query(query, [numero]);
-    res.status(200).json({ message: "updating successfully" });
+    await pool.query(strQuery, [numero], (err) => {
+        if (err) return res.status(500).json({ message: err });
+        res.status(200).json({ message: "updating successfully" });
+    });
 };
 
 ctrl.editName = async (req, res) => {
     const { nombre, numero } = req.body;
     if (!nombre) return res.status(404).json({ err: "information is missing" });
-    await pool.query(`UPDATE twilio_numero
-                      SET nombre = ?
-                      WHERE numero = ?` , [nombre, numero]);
-    res.status(200).json({ message: "updating successfully" });
+    const strQuery = `UPDATE twilio_numero
+                        SET nombre = ?
+                        WHERE numero = ?`;
+    await pool.query(strQuery, [nombre, numero], (err) => {
+        if (err) return res.status(500).json({ message: err });
+        res.status(200).json({ message: "updating successfully" });
+    });
 };
 
 module.exports = ctrl;
