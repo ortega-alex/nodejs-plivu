@@ -18,7 +18,7 @@ ctrl.editChat = async (req, res) => {
     const { numero_salida, numero, texto } = req.body;
     if ( !numero_salida || !numero || !texto ) return res.status(404).json({message :  "information is missing"})
     const respuesta = { message : null , err : false };
-    //await plivo.send(numero_salida, numero, texto);
+    await plivo.send(numero_salida, numero, texto);
     var strQuery = `UPDATE twilio_numero
                         SET    ultimo_tipo = 'E'    
                         WHERE  numero = ?`;
