@@ -50,6 +50,7 @@ ctrl.editNota = async (req, res) => {
     if (!texto || !id_panel) return res.status(404).json({ messge: "information is missing" });
     const respuesta  = { message : null , err : false};
     var strQuery = null;
+    
     if (nombre && numero) {
         strQuery = `UPDATE twilio_numero
                     SET nombre = ?
@@ -58,14 +59,16 @@ ctrl.editNota = async (req, res) => {
             respuesta.err = true;
             respuesta.message = err;
         });
+        if (respuesta.err) return res.status(500).json({message : respuesta.message});
     }
+
     strQuery = `UPDATE panel_nota
                 SET texto = ? 
                 WHERE id_panel = ?`;
     await pool.query(strQuery, [texto, id_panel]).catch((err) => {
         respuesta.err = true;
         respuesta.message = err;
-    });
+    });    
     if (respuesta.err) return res.status(500).json({message : respuesta.message});
     res.status(200).json({ message: "note updated successfully" });
 };

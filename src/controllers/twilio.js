@@ -34,6 +34,7 @@ ctrl.getNumeros = async (req, res) => {
             respuesta.err = true;
             respuesta.message = err;
         });
+        if (respuesta.err) return res.status(500).json({ message: respuesta.message });
     }
     if (otro) {
         await pool.query(strQuery, ['N']).then((otros) => {
@@ -42,8 +43,8 @@ ctrl.getNumeros = async (req, res) => {
             respuesta.err = true;
             respuesta.message = err;
         });
-    }
-    if (respuesta.err) return res.status(500).json({ message: respuesta.message });
+        if (respuesta.err) return res.status(500).json({ message: respuesta.message });
+    }   
     res.status(200).json(respuesta);
 };
 
@@ -106,8 +107,8 @@ ctrl.editDNC = async (req, res) => {
     const { numero } = req.body;
     if (!numero) return res.status(404).json({ err: "information is missing" });
     const strQuery = `UPDATE twilio_numero 
-                   SET no_deseado = 'Y'
-                   WHERE  numero = ?`;
+                        SET no_deseado = 'Y'
+                        WHERE  numero = ?`;
     await pool.query(strQuery, [numero], (err) => {
         if (err) return res.status(500).json({ message: err });
         res.status(200).json({ message: "updating successfully" });
@@ -116,7 +117,7 @@ ctrl.editDNC = async (req, res) => {
 
 ctrl.editName = async (req, res) => {
     const { nombre, numero } = req.body;
-    if (!nombre) return res.status(404).json({ err: "information is missing" });
+    if (!nombre || !numero) return res.status(404).json({ err: "information is missing" });
     const strQuery = `UPDATE twilio_numero
                         SET nombre = ?
                         WHERE numero = ?`;
